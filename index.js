@@ -1,22 +1,30 @@
-module.exports = (req, res) => {
-  // Handle CORS (optional)
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST");
+const express = require("express");
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-  // In-memory storage for player data
-  let players = {};
+// Middleware to parse JSON requests
+app.use(express.json());
 
-  if (req.method === "POST" && req.url === "/add") {
-    const { userId, username } = req.body;
-    if (userId && username) {
-      players[userId] = { username };
-      res.status(200).send({ message: "Player added!" });
-    } else {
-      res.status(400).send({ message: "Invalid data!" });
-    }
-  } else if (req.method === "GET" && req.url === "/players") {
-    res.status(200).json(players);
+// In-memory storage for player data (you can replace this with a database later)
+let players = {};
+
+// Add player data
+app.post("/add", (req, res) => {
+  const { userId, username } = req.body;
+  if (userId && username) {
+    players[userId] = { username };
+    res.status(200).send({ message: "Player added!" });
   } else {
-    res.status(404).send({ message: "Route not found!" });
+    res.status(400).send({ message: "Invalid data!" });
   }
-};
+});
+
+// Get player data
+app.get("/players", (req, res) => {
+  res.status(200).json(players);
+});
+
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
